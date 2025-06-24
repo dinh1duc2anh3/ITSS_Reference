@@ -4,9 +4,8 @@ import com.darian.ecommerce.auth.dto.LoginDTO;
 import com.darian.ecommerce.auth.dto.UserDTO;
 import com.darian.ecommerce.shared.constants.ApiEndpoints;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -15,8 +14,6 @@ import java.util.Map;
 @RestController
 @RequestMapping(ApiEndpoints.AUTH)
 public class AuthController {
-
-    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final UserService userService;
 
@@ -40,5 +37,13 @@ public class AuthController {
         response.put("message", "User registered successfully");
         response.put("user", registeredUser);
         return ResponseEntity.ok(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+        return ResponseEntity.badRequest().body(errors);
     }
 }
