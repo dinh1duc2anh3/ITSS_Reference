@@ -13,8 +13,7 @@ public class UserMapper {
                 .username(dto.getUsername())
                 .password(dto.getPassword())
                 .email(dto.getEmail())
-//                .role(dto.getRole() != null ? UserRole.valueOf(dto.getRole().toUpperCase()) : UserRole.CUSTOMER)
-                .role(UserRole.CUSTOMER)
+                .role(dto.getRole() != null ? UserRole.valueOf(dto.getRole().toUpperCase()) : UserRole.CUSTOMER)
                 .build();
     }
 
@@ -22,12 +21,9 @@ public class UserMapper {
         return UserDTO.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-//                .password(user.getPassword()) TODO: no include password into dto for security
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .createdAt(user.getCreatedAt())
                 .build();
     }
-
-
 }
