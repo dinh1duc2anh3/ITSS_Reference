@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useContext } from "react";
+import React, { Fragment, useEffect, useContext, useState } from "react";
 import moment from "moment";
-import { fetchOrderByUser } from "./Action";
+// Ensure cancelOrder is imported and aliased to avoid name collision if needed
+import { fetchOrderByUser, handleCancelOrder as cancelOrderAction } from "./Action";
 import Layout, { DashboardUserContext } from "./Layout";
 
 const apiURL = process.env.REACT_APP_API_URL;
@@ -13,90 +14,176 @@ const TableHeader = () => {
           <th className="px-4 py-2 border">Products</th>
           <th className="px-4 py-2 border">Status</th>
           <th className="px-4 py-2 border">Total</th>
-          <th className="px-4 py-2 border">Phone</th>
+          <th className="px-4 py-2 border">Recipient Name</th>
           <th className="px-4 py-2 border">Address</th>
-          <th className="px-4 py-2 border">Transaction Id</th>
-          <th className="px-4 py-2 border">Checkout</th>
-          <th className="px-4 py-2 border">Processing</th>
+          <th className="px-4 py-2 border">Created At</th>
+          <th className="px-4 py-2 border">Last Updated</th>
+          <th className="px-4 py-2 border">Actions</th>
         </tr>
       </thead>
     </Fragment>
   );
 };
 
-const TableBody = ({ order }) => {
+const TableBody = ({ order, onOrderClick, onCancelOrder }) => {
   return (
     <Fragment>
-      <tr className="border-b">
-        <td className="w-48 hover:bg-gray-200 p-2 flex flex-col space-y-1">
-          {order.allProduct.map((product, i) => {
+      <tr className="border-b cursor-pointer hover:bg-gray-100" onClick={() => onOrderClick(order)}>
+        <td className="w-48 p-2 flex flex-col space-y-1">
+          {order.items.map((item, i) => {
+            const imageUrl = item.productImages && item.productImages.length > 0
+              ? `${apiURL}/uploads/products/${item.productImages[0]}`
+              : '/placeholder-product.jpg'; // Fallback for missing image
+
             return (
               <span className="block flex items-center space-x-2" key={i}>
                 <img
                   className="w-8 h-8 object-cover object-center"
-                  src={`${apiURL}/uploads/products/${product.id.pImages[0]}`}
-                  alt="productImage"
+                  src={imageUrl}
+                  alt={item.productName || 'Product Image'}
                 />
-                <span>{product.id.pName}</span>
-                <span>{product.quantitiy}x</span>
+                <span>{item.productName || 'N/A'}</span>
+                <span>{item.quantity}x</span>
               </span>
             );
           })}
         </td>
-        <td className="hover:bg-gray-200 p-2 text-center cursor-default">
-          {order.status === "Not processed" && (
+        <td className="p-2 text-center cursor-default">
+          {order.orderStatus === "DRAFT" && (
             <span className="block text-red-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
+              {order.orderStatus}
             </span>
           )}
-          {order.status === "Processing" && (
-            <span className="block text-yellow-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
+          {order.orderStatus === "PENDING" && (
+            <span className="block text-orange-600 rounded-full text-center text-xs px-2 font-semibold">
+              {order.orderStatus}
             </span>
           )}
-          {order.status === "Shipped" && (
+          {order.orderStatus === "SHIPPED" && (
             <span className="block text-blue-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
+              {order.orderStatus}
             </span>
           )}
-          {order.status === "Delivered" && (
+          {order.orderStatus === "DELIVERED" && (
             <span className="block text-green-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
+              {order.orderStatus}
             </span>
           )}
-          {order.status === "Cancelled" && (
+          {order.orderStatus === "CANCELLED" && (
             <span className="block text-red-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
+              {order.orderStatus}
             </span>
           )}
         </td>
-        <td className="hover:bg-gray-200 p-2 text-center">
-          ${order.amount}.00
+        <td className="p-2 text-center">
+          {order.total ? order.total.toLocaleString('vi-VN') + ' VND' : '0 VND'}
         </td>
-        <td className="hover:bg-gray-200 p-2 text-center">{order.phone}</td>
-        <td className="hover:bg-gray-200 p-2 text-center">{order.address}</td>
-        <td className="hover:bg-gray-200 p-2 text-center">
-          {order.transactionId}
+        <td className="p-2 text-center">
+          {order.deliveryInfo ? order.deliveryInfo.recipientName : "N/A"}
         </td>
-        <td className="hover:bg-gray-200 p-2 text-center">
-          {moment(order.createdAt).format("lll")}
+        <td className="p-2 text-center">
+          {order.deliveryInfo ? `${order.deliveryInfo.address}, ${order.deliveryInfo.provinceCity}` : "N/A"}
         </td>
-        <td className="hover:bg-gray-200 p-2 text-center">
-          {moment(order.updatedAt).format("lll")}
+        <td className="p-2 text-center">
+          {moment(order.createdDate).format("lll")}
+        </td>
+        <td className="p-2 text-center">
+          {order.updatedDate ? moment(order.updatedDate).format("lll") : "N/A"}
+        </td>
+        <td className="p-2 text-center">
+          {order.orderStatus === "PENDING" && (
+            <button
+              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (window.confirm("Are you sure you want to cancel this order?")) {
+                  onCancelOrder(order.orderId);
+                }
+              }}
+            >
+              Cancel
+            </button>
+          )}
         </td>
       </tr>
     </Fragment>
   );
 };
 
+// Order Detail Modal Component
+const OrderDetailModal = ({ order, onClose }) => {
+    if (!order) return null;
+
+    return (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+            <div className="relative p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div className="text-center">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">Order Details (ID: {order.orderId})</h3>
+                    <div className="mt-2 px-7 py-3">
+                        <p className="text-sm text-gray-500"><strong>Status:</strong> {order.orderStatus}</p>
+                        <p className="text-sm text-gray-500"><strong>Total:</strong> {order.total ? order.total.toLocaleString('vi-VN') + ' VND' : '0 VND'}</p>
+                        <p className="text-sm text-gray-500"><strong>Recipient:</strong> {order.deliveryInfo ? order.deliveryInfo.recipientName : 'N/A'}</p>
+                        <p className="text-sm text-gray-500"><strong>Address:</strong> {order.deliveryInfo ? `${order.deliveryInfo.address}, ${order.deliveryInfo.provinceCity}` : 'N/A'}</p>
+                        <p className="text-sm text-gray-500"><strong>Created:</strong> {moment(order.createdDate).format("lll")}</p>
+                        <h4 className="text-md font-medium mt-3">Items:</h4>
+                        <ul className="list-disc list-inside text-sm text-gray-700">
+                            {order.items.map((item, i) => (
+                                <li key={i}>
+                                  {item.productName || 'N/A'} (x{item.quantity}) - {item.lineTotal ? item.lineTotal.toLocaleString('vi-VN') + ' VND' : '0 VND'}
+                                </li>
+                            ))}
+                        </ul>
+                        <p className="text-sm text-gray-500 mt-2"><strong>Shipping Fee:</strong> {order.shippingFee ? order.shippingFee.toLocaleString('vi-VN') + ' VND' : '0 VND'}</p>
+                        <p className="text-sm text-gray-500"><strong>Discount:</strong> ${order.discount ? order.discount.toFixed(2) : '0.00'}</p>
+                        <p className="text-sm text-gray-500"><strong>Payment Status:</strong> {order.paymentStatus || 'N/A'}</p>
+                        {order.rushDeliveryTime && (
+                             <p className="text-sm text-gray-500"><strong>Rush Delivery Time:</strong> {moment(order.rushDeliveryTime).format("lll")}</p>
+                        )}
+                    </div>
+                    <div className="items-center px-4 py-3">
+                        <button
+                            id="ok-btn"
+                            className="px-4 py-2 bg-yellow-700 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                            onClick={onClose}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
 const OrdersComponent = () => {
   const { data, dispatch } = useContext(DashboardUserContext);
   const { OrderByUser: orders } = data;
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     fetchOrderByUser(dispatch);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleOrderClick = (order) => {
+    setSelectedOrder(order);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedOrder(null);
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    try {
+      await cancelOrderAction(orderId);
+      fetchOrderByUser(dispatch);
+      alert(`Order ${orderId} cancelled successfully!`);
+    } catch (error) {
+      console.error("Error canceling order:", error);
+      alert(`Failed to cancel order ${orderId}. Error: ${error.message || 'Unknown error'}`);
+    }
+  };
 
   if (data.loading) {
     return (
@@ -132,7 +219,7 @@ const OrdersComponent = () => {
               <tbody>
                 {orders && orders.length > 0 ? (
                   orders.map((item, i) => {
-                    return <TableBody key={i} order={item} />;
+                    return <TableBody key={i} order={item} onOrderClick={handleOrderClick} onCancelOrder={handleCancelOrder} />;
                   })
                 ) : (
                   <tr>
@@ -152,6 +239,9 @@ const OrdersComponent = () => {
           </div>
         </div>
       </div>
+
+      {/* Order Detail Modal */}
+      <OrderDetailModal order={selectedOrder} onClose={handleCloseModal} />
     </Fragment>
   );
 };

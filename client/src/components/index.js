@@ -12,7 +12,7 @@ import {
 } from "./shop";
 import { DashboardAdmin, Categories, Products, Orders } from "./admin";
 import { UserProfile, UserOrders, SettingUser } from "./shop/dashboardUser";
-
+import { CreateOrderPage }  from "./shop/order";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 /* Routing All page will be here */
@@ -67,7 +67,7 @@ const Routes = (props) => {
         />
         <ProtectedRoute
           exact={true}
-          path="/user/orders"
+          path="/user/order"
           component={UserOrders}
         />
         <ProtectedRoute
@@ -75,6 +75,10 @@ const Routes = (props) => {
           path="/user/setting"
           component={SettingUser}
         />
+        <ProtectedRoute
+          exact={true}
+          path="/user/order/create"
+          component={CreateOrderPage}
         {/* User Dashboard End */}
 
         {/* 404 Page */}

@@ -29,7 +29,9 @@ public class ApiEndpoints {
     public static final String PRODUCT_RELATED = "/{productId}/related";
     
     // Order endpoints
-    public static final String ORDERS = BASE_API + "/orders";
+    public static final String ORDERS = BASE_API + "/order";
+    public static final String ORDER_CREATE = "order/create";
+    public static final String ORDER_PLACE = "order/place";
     public static final String ORDER_BY_ID = "/{orderId}";
     public static final String ORDER_PAYMENT = "/{orderId}/pay";
     public static final String ORDER_CANCEL = "/{orderId}/cancel";

@@ -39,9 +39,9 @@ const Sidebar = (props) => {
         </div>
         <div className="shadow hidden md:block w-full flex flex-col">
           <div
-            onClick={(e) => history.push("/user/orders")}
+            onClick={(e) => history.push("/user/order")}
             className={`${
-              location.pathname === "/user/orders"
+              location.pathname === "/user/order"
                 ? "border-r-4 border-yellow-700 bg-gray-200"
                 : ""
             }  px-4 py-4 hover:bg-gray-200 cursor-pointer`}

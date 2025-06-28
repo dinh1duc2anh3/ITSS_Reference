@@ -1,12 +1,11 @@
 import React, { Fragment, useContext, useState, useEffect } from "react";
 import { OrderContext } from "./index";
-import { getAllOrder, editCategory } from "./FetchApi";
+import { getAllOrders, updateOrderStatus } from "./FetchApi";
 
 const UpdateOrderModal = (props) => {
   const { data, dispatch } = useContext(OrderContext);
 
   const [status, setStatus] = useState("");
-
   const [oId, setOid] = useState("");
 
   useEffect(() => {
@@ -16,18 +15,19 @@ const UpdateOrderModal = (props) => {
   }, [data.updateOrderModal.modal]);
 
   const fetchData = async () => {
-    let responseData = await getAllOrder();
-    if (responseData.Orders) {
+    // Pass the current filter status if needed, or undefined for all
+    let responseData = await getAllOrders();
+    if (responseData && Array.isArray(responseData)) {
       dispatch({
         type: "fetchOrderAndChangeState",
-        payload: responseData.Orders,
+        payload: responseData,
       });
     }
   };
 
   const submitForm = async () => {
     dispatch({ type: "loading", payload: true });
-    let responseData = await editCategory(oId, status);
+    let responseData = await updateOrderStatus(oId, status);
     if (responseData.error) {
       dispatch({ type: "loading", payload: false });
     } else if (responseData.success) {
@@ -91,30 +91,20 @@ const UpdateOrderModal = (props) => {
               className="px-4 py-2 border focus:outline-none"
               id="status"
             >
-              <option name="status" value="Not processed">
-                Not processed
-              </option>
-              <option name="status" value="Processing">
-                Processing
-              </option>
-              <option name="status" value="Shipped">
-                Shipped
-              </option>
-              <option name="status" value="Delivered">
-                Delivered
-              </option>
-              <option name="status" value="Cancelled">
-                Cancelled
-              </option>
+              <option value="PENDING">Pending</option>
+              <option value="CONFIRMED">Confirmed</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="SHIPPED">Shipped</option>
+              <option value="DELIVERED">Delivered</option>
             </select>
           </div>
           <div className="flex flex-col space-y-1 w-full pb-4 md:pb-6">
             <button
               style={{ background: "#303031" }}
-              onClick={(e) => submitForm()}
+              onClick={submitForm}
               className="rounded-full bg-gray-800 text-gray-100 text-lg font-medium py-2"
             >
-              Update category
+              Update Order
             </button>
           </div>
         </div>

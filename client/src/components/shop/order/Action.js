@@ -41,20 +41,8 @@ export const fetchData = async (getCartByUser, dispatch) => {
   }
 };
 
-export const fetchbrainTree = async (getBrainTreeToken, setState) => {
-  try {
-    let responseData = await getBrainTreeToken();
-    if (responseData && responseData) {
-      setState({
-        clientToken: responseData.clientToken,
-        success: responseData.success,
-      });
-      console.log(responseData);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
+
+
 
 export const pay = async (
   data,

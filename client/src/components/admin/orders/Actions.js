@@ -1,13 +1,13 @@
-import { getAllOrder, deleteOrder } from "./FetchApi";
+import { getAllOrders } from "./FetchApi";
 
 export const fetchData = async (dispatch) => {
   dispatch({ type: "loading", payload: true });
-  let responseData = await getAllOrder();
+  let responseData = await getAllOrders();
   setTimeout(() => {
-    if (responseData && responseData.Orders) {
+    if (responseData && Array.isArray(responseData)) {
       dispatch({
         type: "fetchOrderAndChangeState",
-        payload: responseData.Orders,
+        payload: responseData,
       });
       dispatch({ type: "loading", payload: false });
     }
@@ -15,18 +15,10 @@ export const fetchData = async (dispatch) => {
 };
 
 /* This method call the editmodal & dispatch category context */
-export const editOrderReq = (oId, type, status, dispatch) => {
+export const editOrderReq = (orderId, type, status, dispatch) => {
   if (type) {
     console.log("click update");
-    dispatch({ type: "updateOrderModalOpen", oId: oId, status: status });
-  }
-};
-
-export const deleteOrderReq = async (oId, dispatch) => {
-  let responseData = await deleteOrder(oId);
-  console.log(responseData);
-  if (responseData && responseData.success) {
-    fetchData(dispatch);
+    dispatch({ type: "updateOrderModalOpen", orderId: orderId, status: status });
   }
 };
 
@@ -38,43 +30,13 @@ export const filterOrder = async (
   dropdown,
   setDropdown
 ) => {
-  let responseData = await getAllOrder();
-  if (responseData && responseData.Orders) {
-    let newData;
-    if (type === "All") {
-      dispatch({
-        type: "fetchOrderAndChangeState",
-        payload: responseData.Orders,
-      });
-      setDropdown(!dropdown);
-    } else if (type === "Not processed") {
-      newData = responseData.Orders.filter(
-        (item) => item.status === "Not processed"
-      );
-      dispatch({ type: "fetchOrderAndChangeState", payload: newData });
-      setDropdown(!dropdown);
-    } else if (type === "Processing") {
-      newData = responseData.Orders.filter(
-        (item) => item.status === "Processing"
-      );
-      dispatch({ type: "fetchOrderAndChangeState", payload: newData });
-      setDropdown(!dropdown);
-    } else if (type === "Shipped") {
-      newData = responseData.Orders.filter((item) => item.status === "Shipped");
-      dispatch({ type: "fetchOrderAndChangeState", payload: newData });
-      setDropdown(!dropdown);
-    } else if (type === "Delivered") {
-      newData = responseData.Orders.filter(
-        (item) => item.status === "Delivered"
-      );
-      dispatch({ type: "fetchOrderAndChangeState", payload: newData });
-      setDropdown(!dropdown);
-    } else if (type === "Cancelled") {
-      newData = responseData.Orders.filter(
-        (item) => item.status === "Cancelled"
-      );
-      dispatch({ type: "fetchOrderAndChangeState", payload: newData });
-      setDropdown(!dropdown);
-    }
+  let status = type === "All" ? undefined : type;
+  let responseData = await getAllOrders(status);
+  if (responseData && Array.isArray(responseData)) {
+    dispatch({
+      type: "fetchOrderAndChangeState",
+      payload: responseData,
+    });
+    setDropdown(!dropdown);
   }
 };

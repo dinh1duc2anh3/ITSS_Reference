@@ -46,35 +46,31 @@ const OrderMenu = (props) => {
               </span>
               <span
                 onClick={(e) =>
-                  filterOrder(
-                    "Not processed",
-                    data,
-                    dispatch,
-                    dropdown,
-                    setDropdown
-                  )
+                  filterOrder("PENDING", data, dispatch, dropdown, setDropdown)
                 }
                 className="px-4 py-2 hover:bg-black text-center cursor-pointer"
               >
-                Not processed
+                Pending
               </span>
               <span
                 onClick={(e) =>
-                  filterOrder(
-                    "Processing",
-                    data,
-                    dispatch,
-                    dropdown,
-                    setDropdown
-                  )
+                  filterOrder("REJECTED", data, dispatch, dropdown, setDropdown)
                 }
                 className="px-4 py-2 hover:bg-black text-center cursor-pointer"
               >
-                Processing
+                Rejected
               </span>
               <span
                 onClick={(e) =>
-                  filterOrder("Shipped", data, dispatch, dropdown, setDropdown)
+                  filterOrder("CONFIRMED", data, dispatch, dropdown, setDropdown)
+                }
+                className="px-4 py-2 hover:bg-black text-center cursor-pointer"
+              >
+                Confirmed
+              </span>
+              <span
+                onClick={(e) =>
+                  filterOrder("SHIPPED", data, dispatch, dropdown, setDropdown)
                 }
                 className="px-4 py-2 hover:bg-black text-center cursor-pointer"
               >
@@ -82,13 +78,7 @@ const OrderMenu = (props) => {
               </span>
               <span
                 onClick={(e) =>
-                  filterOrder(
-                    "Delivered",
-                    data,
-                    dispatch,
-                    dropdown,
-                    setDropdown
-                  )
+                  filterOrder("DELIVERED", data, dispatch, dropdown, setDropdown)
                 }
                 className="px-4 py-2 hover:bg-black text-center cursor-pointer"
               >
@@ -96,13 +86,7 @@ const OrderMenu = (props) => {
               </span>
               <span
                 onClick={(e) =>
-                  filterOrder(
-                    "Cancelled",
-                    data,
-                    dispatch,
-                    dropdown,
-                    setDropdown
-                  )
+                  filterOrder("CANCELLED", data, dispatch, dropdown, setDropdown)
                 }
                 className="px-4 py-2 hover:bg-black text-center cursor-pointer"
               >
@@ -114,7 +98,6 @@ const OrderMenu = (props) => {
             <SearchFilter />
           </div>
         </div>
-        {/*<AddCategoryModal/>*/}
         <UpdateOrderModal />
       </div>
     </Fragment>

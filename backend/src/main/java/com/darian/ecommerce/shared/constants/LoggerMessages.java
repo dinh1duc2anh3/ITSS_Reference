@@ -28,6 +28,10 @@ public class LoggerMessages {
     
     // Order related messages
     public static final String ORDER_CREATED = "Order created: {}";
+    public static final String ORDER_PLACED = "Order placed: {}";
+    public static final String ORDER_CANCELLED = "Order cancelled: {}";
+    public static final String ORDER_CREATED_DRAFT = "Draft order created: {}";
+    public static final String ORDER_DELETED_DRAFT= "Draft order deleted: {}";
     public static final String ORDER_UPDATED = "Order updated: {}";
     public static final String ORDER_NOT_FOUND = "Order not found: {}";
     public static final String ORDER_STATUS_CHANGED = "Order status changed from {} to {} for order {}";

@@ -65,14 +65,14 @@ public class OrderMapper {
                 .build();
     }
 
-    public Order toEntity(BaseOrderDTO orderDTO, Boolean isRush) {
+    public Order toEntity(BaseOrderDTO orderDTO, Boolean isRush, LocalDateTime rushDeliveryTime) {
         // Lấy user từ customerId (nếu cần)
-        User user = userService.getUserById(orderDTO.getCustomerId());
+        User user = userService.getUserById(orderDTO.getCustomerId()); // Ensure this handles not-found scenarios (e.g., returns Optional and you use orElseThrow, or throws exception directly)
 
-        return Order.builder()
+        // 1. Build the Order object first, without setting the items initially
+        Order order = Order.builder()
                 .orderId(orderDTO.getOrderId())
                 .user(user)
-                .items(orderItemMapper.toEntityList(orderDTO.getItems()))
                 .orderStatus(orderDTO.getOrderStatus())
                 .isRushOrder(isRush)
                 .deliveryInfo(deliveryInfoMapper.toEntity(orderDTO.getDeliveryInfo()))
@@ -81,5 +81,12 @@ public class OrderMapper {
                 .total(orderDTO.getTotal())
                 .createdDate(orderDTO.getCreatedDate() != null ? orderDTO.getCreatedDate() : LocalDateTime.now())
                 .build();
+        if (orderDTO.getItems() != null && !orderDTO.getItems().isEmpty()) {
+            order.setItems(orderItemMapper.toEntityList(orderDTO.getItems(), order));
+        }
+        if (isRush) {
+            order.setRushDeliveryTime(rushDeliveryTime);
+        }
+        return order;
     }
 }

@@ -2,7 +2,7 @@ import React, { Fragment, useContext, useEffect } from "react";
 import moment from "moment";
 
 import { OrderContext } from "./index";
-import { fetchData, editOrderReq, deleteOrderReq } from "./Actions";
+import { fetchData, editOrderReq } from "./Actions";
 
 const apiURL = process.env.REACT_APP_API_URL;
 

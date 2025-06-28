@@ -112,3 +112,16 @@ export const handleChangePassword = async (fData, setFdata, dispatch) => {
     }
   }
 };
+
+export const handleCancelOrder = async (orderId, dispatch) => {
+  dispatch({ type: "loading", payload: true });
+  try {
+    let responseData = await cancelOrder(orderId);
+    if (responseData && responseData.success) {
+      fetchOrderByUser(dispatch);
+      dispatch({ type: "loading", payload: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
