@@ -13,6 +13,6 @@ public interface PaymentStrategy {
     // SRP: Không vi phạm
     // → Chỉ định nghĩa hợp đồng cho Payment Subsystem, không kiêm nhiệm thêm trách nhiệm nào khác.
 
-    PaymentResult processPayment(Long orderId, Float amount,  HttpServletRequest request) throws UnsupportedEncodingException;
+    PaymentResult buildPaymenturl(Long orderId, Float amount, HttpServletRequest request) throws UnsupportedEncodingException;
     RefundResult processRefund(Long orderId);
 } 

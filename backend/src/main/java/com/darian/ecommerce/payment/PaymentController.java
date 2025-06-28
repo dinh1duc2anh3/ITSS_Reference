@@ -123,10 +123,6 @@ public class PaymentController {
     }
 
 
-
-
-
-
     // Process refund for an order
     @PostMapping(ApiEndpoints.PAYMENT_REFUND)
     public ResponseEntity<RefundResult> processRefund(@PathVariable Long orderId) {
@@ -135,80 +131,6 @@ public class PaymentController {
         log.info(LoggerMessages.PAYMENT_COMPLETED, orderId, result.getRefundStatus());
         return ResponseEntity.ok(result);
     }
-
-    @GetMapping("create-refund/{orderId}")
-    public ResponseEntity<?> createRefund(
-            @PathVariable Long orderId,
-            HttpServletRequest request) throws UnsupportedEncodingException, InvalidPaymentMethodException {
-
-//        String vnp_TxnRef = "254010";
-        String vnp_TxnRef = String.valueOf(orderId);
-        String orderInfo = "Hoan Tien don hang:" + vnp_TxnRef;
-        long amount = 99000 * 100;
-
-        Map<String, String> vnp_Params = new HashMap<>();
-        vnp_Params.put("vnp_Version", VNPayConfig.vnp_Version);
-        vnp_Params.put("vnp_Command", VNPayConfig.vnp_RefundCommand);
-        vnp_Params.put("vnp_TmnCode", VNPayConfig.vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(amount));
-        vnp_Params.put("vnp_CurrCode", "VND");
-        vnp_Params.put("vnp_BankCode", "NCB");
-        vnp_Params.put("vnp_TxnRef", vnp_TxnRef); //String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
-        vnp_Params.put("vnp_OrderInfo", orderInfo);
-        vnp_Params.put("vnp_OrderType", VNPayConfig.vnp_OrderType);
-        vnp_Params.put("vnp_Locale", VNPayConfig.vnp_Locale);
-        vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_ReturnUrl);
-        vnp_Params.put("vnp_IpAddr", VNPayConfig.getIpAddress(request));
-//        vnp_Params.put("vnp_IpnUrl", VNPayConfig.vnp_IpnUrl);
-        vnp_Params.put("vnp_CreateDate" , VNPayConfig.getCreateDate());
-        vnp_Params.put("vnp_ExpireDate", VNPayConfig.getExpireDate());
-
-        List fieldNames = new ArrayList(vnp_Params.keySet());
-        Collections.sort(fieldNames);
-        StringBuilder hashData = new StringBuilder();
-        StringBuilder query = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
-        while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) vnp_Params.get(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                //Build hash data
-                hashData.append(fieldName);
-                hashData.append('=');
-                try {
-                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                    //Build query
-                    query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
-                    query.append('=');
-                    query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                if (itr.hasNext()) {
-                    query.append('&');
-                    hashData.append('&');
-                }
-            }
-        }
-        String queryUrl = query.toString();
-        String vnp_SecureHash = VNPayConfig.hmacSHA512(VNPayConfig.secretKey, hashData.toString());
-        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        String paymentUrl = VNPayConfig.vnp_PayUrl + "?" + queryUrl;
-
-        log.info("========== VNPAY PAYMENT INFO ==========");
-        log.info("Hash Data: " + hashData.toString());
-        log.info("Query URL: " + queryUrl);
-        log.info("Payment URL: " + paymentUrl);
-        log.info("=======================================");
-
-        PaymentResDTO paymentResDTO = new PaymentResDTO();
-        paymentResDTO.setStatus("OK");
-        paymentResDTO.setMessage("Successfully");
-        paymentResDTO.setURL(paymentUrl);
-
-        return ResponseEntity.status(HttpStatus.OK).body(paymentResDTO);
-    }
-
 
 
     @PostMapping("/refund")

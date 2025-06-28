@@ -1,6 +1,10 @@
 package com.darian.ecommerce.audit.listener;
 
 import com.darian.ecommerce.audit.event.CheckDeleteLimitEvent;
+import com.darian.ecommerce.payment.dto.PaymentResult;
+import com.darian.ecommerce.payment.dto.RefundResult;
+import com.darian.ecommerce.payment.event.PaymentSuccessEvent;
+import com.darian.ecommerce.payment.event.RefundEvent;
 import com.darian.ecommerce.product.event.*;
 import com.darian.ecommerce.audit.AuditLogService;
 import com.darian.ecommerce.shared.constants.LoggerMessages;
@@ -52,5 +56,19 @@ public class AuditLogEventListener {
     @EventListener
     public void handleCheckDeleteLimit(CheckDeleteLimitEvent event) {
         logger.info(LoggerMessages.PRODUCT_DELETE_LIMIT, event.getUserId());
+    }
+
+    @EventListener
+    public void handlePaymentSuccess(PaymentSuccessEvent event) {
+        PaymentResult result = event.getPaymentResult();
+        logger.info(LoggerMessages.PAYMENT_COMPLETED, result.getOrderId(), result.getPaymentStatus());
+        auditLogService.logPayment(result);
+    }
+
+    @EventListener
+    public void handleRefund(RefundEvent event) {
+        RefundResult result = event.getRefundResult();
+        logger.info("Observer - Ghi nhận hoàn tiền: {}", result.getTransactionId());
+        auditLogService.logPayment(result);  // hoặc logRefund nếu tách riêng
     }
 }

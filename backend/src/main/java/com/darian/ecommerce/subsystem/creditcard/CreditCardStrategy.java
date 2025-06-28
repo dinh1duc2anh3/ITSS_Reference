@@ -6,7 +6,9 @@ import com.darian.ecommerce.payment.PaymentStrategy;
 import com.darian.ecommerce.subsystem.vnpay.VNPaySubsystemService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+@Service("creditCard")
 @Component
 public class CreditCardStrategy implements PaymentStrategy {
 //    private final VNPaySubsystemService vnPayService;
@@ -16,7 +18,7 @@ public class CreditCardStrategy implements PaymentStrategy {
     }
 
     @Override
-    public PaymentResult processPayment(Long orderId, Float amount, HttpServletRequest request) {
+    public PaymentResult buildPaymenturl(Long orderId, Float amount, HttpServletRequest request) {
 //        VNPayRequest request = VNPayRequest.builder()
 //                .orderId(orderId)
 //                .amount(amount)

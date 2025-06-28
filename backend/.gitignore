@@ -6,7 +6,9 @@ target/
 
 ### STS ###
 .apt_generated
+.mvn/*
 .classpath
+logs/
 .factorypath
 .project
 .settings

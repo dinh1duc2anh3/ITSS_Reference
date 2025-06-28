@@ -14,24 +14,6 @@ import java.time.format.DateTimeFormatter;
 
 public class PaymentTransactionMapper {
 
-    public static PaymentTransaction toEntity(PaymentConfirmDTO dto, Order order, PaymentMethod method) {
-        float amount = Float.parseFloat(dto.getVnpAmount()) / 100f;
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        LocalDateTime payTime = LocalDateTime.parse(dto.getVnpPayDate(), formatter);
-
-        return PaymentTransaction.builder()
-                .transactionCode(dto.getVnpTransactionNo())
-                .order(order)
-                .totalAmount(amount)
-                .transactionContent("Thanh toán đơn hàng #" + dto.getVnpTxnRef())
-                .payTimestamp(payTime)
-                .paymentMethod(method)
-                .paymentStatus("00".equals(dto.getVnpResponseCode()) ?
-                        PaymentStatus.PAID : PaymentStatus.FAILED)
-                .refundStatus(RefundStatus.NOT_REQUESTED)
-                .build();
-    }
 
     public static PaymentResult toPaymentResult(PaymentTransaction transaction) {
         return PaymentResult.builder()

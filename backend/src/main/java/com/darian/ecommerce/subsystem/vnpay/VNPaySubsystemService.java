@@ -31,14 +31,14 @@ public class VNPaySubsystemService implements PaymentStrategy {
 
     private static final Logger log = LoggerFactory.getLogger(VNPaySubsystemService.class);
 
-    private final VNPayAPI vnPayAPI;
+    private final MockVNPayClient vnPayAPI;
     private final VNPayConfig vnPayConfig;
     private final VNPayBuilder builder;
     private final VNPayResponseHandler responseHandler;
     private final VNPayApiGateway apiGateway;
     
-    public VNPaySubsystemService(VNPayAPI vnPayAPI, VNPayConfig vnPayConfig, VNPayBuilder builder, VNPayResponseHandler responseHandler, VNPayApiGateway apiGateway) {
-        this.vnPayAPI = vnPayAPI;
+    public VNPaySubsystemService(MockVNPayClient mockVnPayClient, VNPayConfig vnPayConfig, VNPayBuilder builder, VNPayResponseHandler responseHandler, VNPayApiGateway apiGateway) {
+        this.vnPayAPI = mockVnPayClient;
         this.vnPayConfig = vnPayConfig;
         this.builder = builder;
         this.responseHandler = responseHandler;
@@ -47,7 +47,7 @@ public class VNPaySubsystemService implements PaymentStrategy {
 
 
     @Override
-    public PaymentResult processPayment(Long orderId, Float amount, HttpServletRequest request) throws UnsupportedEncodingException {
+    public PaymentResult buildPaymenturl(Long orderId, Float amount, HttpServletRequest request) throws UnsupportedEncodingException {
         log.info(LoggerMessages.PAYMENT_PROCESSING, orderId, "VNPay");
         String paymentUrl = VNPayBuilder.buildPaymentUrl(orderId, amount,request);
         PaymentResult result = new PaymentResult();
@@ -64,9 +64,6 @@ public class VNPaySubsystemService implements PaymentStrategy {
         log.info(LoggerMessages.REFUND_COMPLETED, orderId, response.getStatus());
         return responseHandler.toRefundResult(response);
     }
-
-
-
 
     public PaymentResult processVNPayReturn(Map<String, String> vnpResponse) {
         PaymentResult result = new PaymentResult();

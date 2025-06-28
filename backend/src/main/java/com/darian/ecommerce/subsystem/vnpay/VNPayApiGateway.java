@@ -28,16 +28,15 @@ public class VNPayApiGateway {
     // SRP: Không vi phạm
     // → Class chỉ chịu trách nhiệm trung gian kết nối giữa hệ thống và VNPay (abstract API calls, thêm logging, xử lý connection error).
 
-    // Suggestion:
-    // → Có thể đổi tên thành `VNPayClientGateway` nếu sau này hỗ trợ nhiều nhà cung cấp (ZaloPay, Momo), để phù hợp vai trò Gateway Pattern.
+    //TODO: dùng để gửi http request tới vnpay như refund hoặc query status
 
 
     private static final Logger log = LoggerFactory.getLogger(VNPayApiGateway.class);
-    private final VNPayAPI vnPayAPI;
+    private final MockVNPayClient mockVnPayClient;
     private final VNPayConfig vnPayConfig;
 
-    protected VNPayApiGateway(VNPayAPI vnPayAPI, VNPayConfig vnPayConfig) {
-        this.vnPayAPI = vnPayAPI;
+    protected VNPayApiGateway(MockVNPayClient mockVnPayClient, VNPayConfig vnPayConfig) {
+        this.mockVnPayClient = mockVnPayClient;
         this.vnPayConfig = vnPayConfig;
     }
 
@@ -50,7 +49,7 @@ public class VNPayApiGateway {
         try {
             log.info("Sending payment request to VNPay for order: {}", request.getOrderId());
             //TODO : fix this
-//            VNPayResponse response = vnPayAPI.createPaymentUrl(request);
+//            VNPayResponse response = mockVnPayClient.createPaymentUrl(request);
             VNPayResponse response = new VNPayResponse();
             log.info(LoggerMessages.VNPAY_PAYMENT_EXECUTED, request.getOrderId(), response.getStatus());
             return response;
@@ -69,7 +68,7 @@ public class VNPayApiGateway {
     public VNPayResponse sendRefundRequest(VNPayRequest request) throws ConnectionException {
         try {
             log.info(LoggerMessages.VNPAY_SENDING_REQUEST, request.getOrderId());
-            VNPayResponse response = vnPayAPI.processRefund(request);
+            VNPayResponse response = mockVnPayClient.processRefund(request);
 
             log.info(LoggerMessages.VNPAY_REFUND_EXECUTED,
                     request.getOrderId(), response.getStatus());

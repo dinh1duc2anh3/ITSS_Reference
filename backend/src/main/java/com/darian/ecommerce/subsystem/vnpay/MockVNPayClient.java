@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class VNPayAPI {
+public class MockVNPayClient {
     // Cohesion: Functional Cohesion
     // → Mọi method trong class đều phục vụ chung một mục đích là "mô phỏng giao tiếp với VNPay" (payment/refund), không bị lệch nhiệm vụ.
     
@@ -16,7 +16,7 @@ public class VNPayAPI {
     private final VNPayConfig vnPayConfig;
 
     @Autowired
-    public VNPayAPI(VNPayConfig vnPayConfig) {
+    public MockVNPayClient(VNPayConfig vnPayConfig) {
         this.vnPayConfig = vnPayConfig;
     }
 
