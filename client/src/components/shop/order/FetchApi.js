@@ -2,6 +2,20 @@ import axios from "axios";
 const apiURL = process.env.REACT_APP_API_URL;
 const base = `${apiURL}/api/v1/orders`;
 
+export const createOrder = async (orderData) => {
+  try {
+    let res = await axios.post(`${base}/create`, orderData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 export const placeOrder = async (orderData) => {
   try {
     let res = await axios.post(`${apiURL}/api/v1/orders/place`, orderData, {
@@ -54,21 +68,6 @@ export const setDeliveryInfo = async (orderId, deliveryInfoDTO) => {
 };
 
 
-/*
-// Initiate payment
-export const initiatePayment = async (orderId, paymentMethod) => {
-  try {
-    const res = await axios.post(`${base}/${orderId}/pay`, null, {
-      params: { paymentMethod },
-    });
-    return res.data;
-  } catch (error) {
-    console.error("Payment initiation failed:", error);
-    throw error;
-  }
-}; */
-
-
 // VNPay payment - Updated to match backend endpoint
 export const createVNPayPayment = async (orderId, paymentData) => {
   try {
@@ -106,21 +105,6 @@ export const getInvoice = async (orderId) => {
     throw error;
   }
 };
-
-/*
-// Initiate payment
-export const initiatePayment = async (orderId, paymentMethod) => {
-  try {
-    const res = await axios.post(`${base}/${orderId}/pay`, null, {
-      params: { paymentMethod },
-    });
-    return res.data;
-  } catch (error) {
-    console.log(error);
-    console.error("Payment initiation failed:", error);
-    throw error;
-  }
-}; */
 
 
 // Get order history for a customer

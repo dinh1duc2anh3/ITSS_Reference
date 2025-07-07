@@ -295,7 +295,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Boolean isRushDeliverySupported(BaseOrderDTO baseOrderDTO) {
         return baseOrderDTO.getDeliveryInfo().getProvinceCity().equalsIgnoreCase("hanoi")
-            && baseOrderDTO.getItems().stream().allMatch(OrderItemDTO::isRushEligible);
+            && baseOrderDTO.getItems().stream().allMatch(item -> item.isRushEligible());
     }
 
     @Override
@@ -334,6 +334,15 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Cannot update order status to CANCELLED directly. Use cancelOrder method instead.");
         }
         orderRepository.updateOrderStatus(orderId, orderStatus);
+    }
+
+    public void deleteOrder(Long orderId) {
+        Order order = findOrderById(orderId)
+            .orElseThrow(() -> new OrderNotFoundException(String.format(ErrorMessages.ORDER_NOT_FOUND, orderId)));
+        
+        orderRepository.delete(order);
+        logger.info(LoggerMessages.ORDER_DELETED, orderId);
+        auditLogService.logOrderAction(order.getUser().getId(), orderId, UserRole.CUSTOMER, ActionType.ORDER_ACTION);
     }
 
     @Override

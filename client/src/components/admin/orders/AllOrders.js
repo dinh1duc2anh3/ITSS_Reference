@@ -2,13 +2,15 @@ import React, { Fragment, useContext, useEffect } from "react";
 import moment from "moment";
 
 import { OrderContext } from "./index";
-import { fetchData, editOrderReq } from "./Actions";
+import { fetchData, editOrderReq, deleteOrderReq } from "./Actions";
 
 const apiURL = process.env.REACT_APP_API_URL;
 
-const AllCategory = (props) => {
+const AllOrders = (props) => {
   const { data, dispatch } = useContext(OrderContext);
-  const { orders, loading } = data;
+  // Filter out orders with "DRAFT" status
+  const ordersToDisplay = data.orders.filter(order => order.orderStatus !== "DRAFT");
+  const { loading } = data;
 
   useEffect(() => {
     fetchData(dispatch);
@@ -46,7 +48,6 @@ const AllCategory = (props) => {
               <th className="px-4 py-2 border">Total</th>
               <th className="px-4 py-2 border">Transaction Id</th>
               <th className="px-4 py-2 border">Customer</th>
-              <th className="px-4 py-2 border">Email</th>
               <th className="px-4 py-2 border">Phone</th>
               <th className="px-4 py-2 border">Address</th>
               <th className="px-4 py-2 border">Created at</th>
@@ -55,8 +56,8 @@ const AllCategory = (props) => {
             </tr>
           </thead>
           <tbody>
-            {orders && orders.length > 0 ? (
-              orders.map((item, i) => {
+            {ordersToDisplay && ordersToDisplay.length > 0 ? (
+              ordersToDisplay.map((item, i) => {
                 return (
                   <CategoryTable
                     key={i}
@@ -70,7 +71,7 @@ const AllCategory = (props) => {
             ) : (
               <tr>
                 <td
-                  colSpan="12"
+                  colSpan="11"
                   className="text-xl text-center font-semibold py-8"
                 >
                   No order found
@@ -80,7 +81,7 @@ const AllCategory = (props) => {
           </tbody>
         </table>
         <div className="text-sm text-gray-600 mt-2">
-          Total {orders && orders.length} order found
+          Total {ordersToDisplay && ordersToDisplay.length} order found
         </div>
       </div>
     </Fragment>
@@ -95,68 +96,74 @@ const CategoryTable = ({ order, editOrder }) => {
     <Fragment>
       <tr className="border-b">
         <td className="w-48 hover:bg-gray-200 p-2 flex flex-col space-y-1">
-          {order.allProduct.map((product, i) => {
+          {order.items.map((item, i) => {
+            const imageUrl = item.productImages && item.productImages.length > 0
+              ? `${apiURL}/uploads/products/${item.productImages[0]}`
+              : '/placeholder-product.jpg';
+
             return (
               <span className="block flex items-center space-x-2" key={i}>
                 <img
                   className="w-8 h-8 object-cover object-center"
-                  src={`${apiURL}/uploads/products/${product.id.pImages[0]}`}
-                  alt="productImage"
+                  src={imageUrl}
+                  alt={item.productName || 'Product Image'}
                 />
-                <span>{product.id.pName}</span>
-                <span>{product.quantitiy}x</span>
+                <span>{item.productName || 'N/A'}</span>
+                <span>{item.quantity}x</span>
               </span>
             );
           })}
         </td>
         <td className="hover:bg-gray-200 p-2 text-center cursor-default">
-          {order.status === "Not processed" && (
-            <span className="block text-red-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
-            </span>
-          )}
-          {order.status === "Processing" && (
+          {order.orderStatus === "PENDING" && (
             <span className="block text-yellow-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
+              Pending
             </span>
           )}
-          {order.status === "Shipped" && (
+          {order.orderStatus === "CONFIRMED" && (
+            <span className="block text-green-500 rounded-full text-center text-xs px-2 font-semibold">
+              Confirmed
+            </span>
+          )}
+          {order.orderStatus === "SHIPPED" && (
             <span className="block text-blue-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
+              Shipped
             </span>
           )}
-          {order.status === "Delivered" && (
+          {order.orderStatus === "DELIVERED" && (
             <span className="block text-green-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
+              Delivered
             </span>
           )}
-          {order.status === "Cancelled" && (
+          {order.orderStatus === "REJECTED" && (
+            <span className="block text-orange-600 rounded-full text-center text-xs px-2 font-semibold">
+              Rejected
+            </span>
+          )}
+          {order.orderStatus === "CANCELLED" && (
             <span className="block text-red-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
+              Cancelled
             </span>
           )}
         </td>
         <td className="hover:bg-gray-200 p-2 text-center">
-          ${order.amount}.00
+          {order.total}.00 {/* Removed "$" */}
         </td>
         <td className="hover:bg-gray-200 p-2 text-center">
           {order.transactionId}
         </td>
-        <td className="hover:bg-gray-200 p-2 text-center">{order.user.name}</td>
+        <td className="hover:bg-gray-200 p-2 text-center">{order.deliveryInfo.recipientName}</td>
+        <td className="hover:bg-gray-200 p-2 text-center">{order.deliveryInfo.phone}</td>
+        <td className="hover:bg-gray-200 p-2 text-center">{order.deliveryInfo.address}</td>
         <td className="hover:bg-gray-200 p-2 text-center">
-          {order.user.email}
-        </td>
-        <td className="hover:bg-gray-200 p-2 text-center">{order.phone}</td>
-        <td className="hover:bg-gray-200 p-2 text-center">{order.address}</td>
-        <td className="hover:bg-gray-200 p-2 text-center">
-          {moment(order.createdAt).format("lll")}
+          {moment(order.createdDate).format("lll")}
         </td>
         <td className="hover:bg-gray-200 p-2 text-center">
           {moment(order.updatedAt).format("lll")}
         </td>
         <td className="p-2 flex items-center justify-center">
           <span
-            onClick={(e) => editOrder(order._id, true, order.status)}
+            onClick={(e) => editOrder(order._id, true, order.orderStatus)}
             className="cursor-pointer hover:bg-gray-200 rounded-lg p-2 mx-1"
           >
             <svg
@@ -198,4 +205,4 @@ const CategoryTable = ({ order, editOrder }) => {
   );
 };
 
-export default AllCategory;
+export default AllOrders;

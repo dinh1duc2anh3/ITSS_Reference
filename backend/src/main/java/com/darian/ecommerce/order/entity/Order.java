@@ -71,21 +71,16 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items;
 
-
-
-    //getter + setter
-
     // Calculate subtotal (sum of line totals)
     public float getSubtotal(){
         return items != null ? (float) items.stream().mapToDouble(OrderItem::getLineTotal).sum() : 0;
     }
 
-    // Calculate VAT (example: 10% of subtotal)
+    // Calculate VAT 
     public Float getVAT(){
         return getSubtotal() * 0.1f;
     }
 
-    // Calculate VAT (example: 10% of subtotal)
     public Float getTotal(){
         return getSubtotal() + shippingFee - discount + getVAT();
     }
@@ -93,8 +88,6 @@ public class Order {
     // Auto-set createdDate
     @PrePersist
     protected void onCreate() {
-        this.paymentStatus = PaymentStatus.UNPAID;
-        this.orderStatus = OrderStatus.PENDING;
         this.isRushOrder = false;
     }
 }

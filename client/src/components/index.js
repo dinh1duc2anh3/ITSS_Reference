@@ -79,6 +79,7 @@ const Routes = (props) => {
           exact={true}
           path="/user/order/create"
           component={CreateOrderPage}
+        />
         {/* User Dashboard End */}
 
         {/* 404 Page */}

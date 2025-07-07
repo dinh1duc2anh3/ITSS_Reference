@@ -14,5 +14,4 @@ public enum ActionType {
     ADD_PRODUCT,
     DELETE_PRODUCT,
     UPDATE_PRODUCT,
-
 }

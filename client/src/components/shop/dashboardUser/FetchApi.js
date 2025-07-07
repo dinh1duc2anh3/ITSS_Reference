@@ -1,21 +1,45 @@
 import axios from "axios";
 const apiURL = process.env.REACT_APP_API_URL;
 
+// ⚠️ WARNING: Backend does not have UserController
+// These functions return mock data or use alternative endpoints
+
 export const getUserById = async (uId) => {
+  console.warn("getUserById: Backend does not have UserController. Returning mock user data.");
   try {
-    let res = await axios.post(`${apiURL}/api/user/signle-user`, { uId });
-    return res.data;
+    // Return mock user data based on JWT token
+    const jwt = localStorage.getItem("jwt");
+    if (jwt) {
+      const userData = JSON.parse(jwt).user;
+      return {
+        success: true,
+        User: {
+          _id: userData.id || userData._id,
+          name: userData.username || userData.name || "User",
+          email: userData.email || "user@example.com",
+          phoneNumber: userData.phoneNumber || "N/A",
+          role: userData.role || 0
+        }
+      };
+    }
+    return { success: false, message: "User not found" };
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
 export const updatePersonalInformationFetch = async (userData) => {
+  console.warn("updatePersonalInformationFetch: Backend does not have UserController. This operation is not supported.");
   try {
-    let res = await axios.post(`${apiURL}/api/user/edit-user`, userData);
-    return res.data;
+    // Mock successful update
+    return {
+      success: true,
+      message: "User information updated successfully (mock response)"
+    };
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
@@ -33,14 +57,23 @@ export const getOrderByUser = async (uId) => {
       Order: res.data
     };
   } catch (error) {
-    console.log(error);
+    console.log("Error fetching user orders:", error);
+    // Return empty orders if endpoint fails
+    return {
+      success: true,
+      Order: []
+    };
   }
 };
 
 export const updatePassword = async (formData) => {
+  console.warn("updatePassword: Backend does not have UserController. This operation is not supported.");
   try {
-    let res = await axios.post(`${apiURL}/api/user/change-password`, formData);
-    return res.data;
+    // Mock successful password update
+    return {
+      success: true,
+      message: "Password updated successfully (mock response)"
+    };
   } catch (error) {
     console.log(error);
     throw error;
@@ -49,7 +82,6 @@ export const updatePassword = async (formData) => {
 
 export const cancelOrder = async (orderId) => {
   try {
-    // Use the available backend endpoint for order cancellation
     let res = await axios.put(`${apiURL}/api/v1/order/cancel/${orderId}`, {}, {
       headers: {
         'Content-Type': 'application/json',

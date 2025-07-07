@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public interface OrderService {
     OrderDTO createOrder(CartDTO cartDTO);
-    
+
     BaseOrderDTO getOrderDetails(Long orderId) throws OrderNotFoundException;
 
     InvoiceDTO getInvoice(Long orderId) throws OrderNotFoundException;
@@ -45,6 +45,8 @@ public interface OrderService {
     Boolean checkCancellationValidity(Long orderId);
 
     List<BaseOrderDTO> getOrdersbyStatus(OrderStatus status);
+
+    void deleteOrder(Long orderId) throws OrderNotFoundException;
 
     Boolean isRushDeliverySupported(BaseOrderDTO BaseOrderDTO);
 }

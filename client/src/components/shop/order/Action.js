@@ -42,8 +42,6 @@ export const fetchData = async (getCartByUser, dispatch) => {
 };
 
 
-
-
 export const pay = async (
   data,
   dispatch,
