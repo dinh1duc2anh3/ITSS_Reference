@@ -2,6 +2,7 @@ package com.darian.ecommerce.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -24,6 +25,7 @@ public class UserDTO {
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
+    @NotBlank(message = "Role is required")
     @Pattern(regexp = "^(CUSTOMER|MANAGER)$", message = "Role must be either CUSTOMER or MANAGER")
     private String role;
 
@@ -31,6 +33,7 @@ public class UserDTO {
     @Email(message = "Invalid email format")
     private String email;
 
+    @NotNull(message = "Created at is required")
     private LocalDateTime createdAt;
-}
 
+    }
